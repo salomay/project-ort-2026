@@ -48,7 +48,7 @@ jobs:
       XCODE_SCHEME: "orthoceph"                     # sesuaikan nama scheme
       XCODE_WORKSPACE: "ios/orthoceph.xcworkspace"  # sesuaikan path workspace
       EXPORT_METHOD: "app-store"
-      APP_MARKETING_VERSION: "2.9"                  # naikkan setiap release baru, harus > versi approved terakhir
+      APP_MARKETING_VERSION: "3.0"                  # naikkan setiap release baru, harus > versi approved terakhir
 
     steps:
       - name: Checkout kode

@@ -1550,6 +1550,7 @@ const FormCephalometricAnalysis = ({navigation,route}) => {
 
   // download image
   async function exportToPdf() {
+     const wasInDetail = resetToAllLines(); 
     // Reset dulu posisi/scale gambar sebelum capture, sama seperti saveAnalysis() -
     // supaya PDF hasil export selalu menangkap gambar dari posisi default
     // (bukan posisi zoom/pan terakhir yang mungkin sedang dilihat user).
@@ -1623,10 +1624,11 @@ const FormCephalometricAnalysis = ({navigation,route}) => {
     // sebelumnya di fungsi ini).
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const safetyBuffer = Platform.OS === 'ios' ? 250 : 50;
-        setTimeout(runCapture, safetyBuffer);
-      });
+      const baseBuffer = Platform.OS === 'ios' ? 250 : 50;
+      const safetyBuffer = wasInDetail ? baseBuffer + 300 : baseBuffer;   // ⬅️ UBAH
+      setTimeout(runCapture, safetyBuffer);
     });
+  });
   }
 
   const newAnalysis__ = (AI) => {
@@ -1869,9 +1871,21 @@ const FormCephalometricAnalysis = ({navigation,route}) => {
     }, [resetScaleImage]),
   );
 
+const resetToAllLines = () => {
+  const wasInDetail = selectid !== null && selectid !== undefined;
 
+  set_select_id_handler(null);
+  set_detailresult_handler(false);
+  set_resultanalysis_handler(true);
+  set_headerText_handler('Cephalometric ' + step);
+  set_subHeaderText_handler('');
+
+  return wasInDetail;
+};
 
   function saveAnalysis() {
+    const wasInDetail = resetToAllLines();
+
     refImageZoom.current.resetScale();
 
     // duration: 0 supaya langsung snap ke posisi/scale default tanpa animasi,
@@ -2330,12 +2344,15 @@ const FormCephalometricAnalysis = ({navigation,route}) => {
     // final resetScale()/centerOn()), baru tambahkan buffer kecil - jauh lebih
     // kecil dari delay statis sebelumnya karena sebagian besar "tunggu" sudah
     // dijamin oleh rAF, bukan ditebak.
+   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const safetyBuffer = Platform.OS === 'ios' ? 250 : 50;
-        setTimeout(runCapture, safetyBuffer);
-      });
+      // ⬇️ UBAH: tambah buffer kalau tadi sedang di mode detail,
+      // karena Svg harus render ulang semua garis dulu
+      const baseBuffer = Platform.OS === 'ios' ? 250 : 50;
+      const safetyBuffer = wasInDetail ? baseBuffer + 300 : baseBuffer;
+      setTimeout(runCapture, safetyBuffer);
     });
+  });
   }
 
   async function _analysis() {
